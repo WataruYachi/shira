@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a421457c669ea2feee9593f5952bde98d0bc2ed6f76247327ca8b2f491e0fb68
+-- hash: e4b8e349c552b3f03c32ee7c8ec17694cf7e1ae2219477602449fc43fcc73f00
 
 name:           Shira
 version:        0.1.0.0
@@ -27,8 +27,10 @@ source-repository head
 
 library
   exposed-modules:
+      Generater
       Lib
       Parser
+      Syntax
   other-modules:
       Paths_Shira
   hs-source-dirs:
