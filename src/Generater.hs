@@ -5,7 +5,7 @@ import           Syntax
 
 import           Control.Applicative
 
-makeAST = runParser expr
+makeAST = runParser expr'
 
 eval s = do
     ast <- makeAST s
@@ -13,8 +13,8 @@ eval s = do
 
 evalE :: Expr -> Int
 evalE (Expr t) = evalT t
-evalE (Add t e) = evalT t + evalE e
-evalE (Sub t e) = evalT t - evalE e
+evalE (Add t e) = evalE t + evalE e
+evalE (Sub t e) = evalE t - evalE e
 
 evalT :: Term -> Int
 evalT (Term f) = evalF f
@@ -28,9 +28,28 @@ evalF (Int n) = n
 expr :: Parser Expr
 expr = do
     t <- term
-    symbol "+" *> (Add t <$> expr)
-        <|> symbol "-" *> (Sub t <*> expr)
+    symbol "+" *> (Add (Expr t) <$> expr)
+        <|> symbol "-" *> (Sub (Expr t) <$> expr)
         <|> return (Expr t)
+
+expr' :: Parser Expr
+expr' = do
+    t <- term
+    do 
+        symbol "-"
+        t' <- term
+        let s = Sub (Expr t)  (Expr t')
+        symbol "+" *> (Add s <$> expr)
+         <|> symbol "-" *> (Sub s <$> expr)
+     <|> do
+        symbol "+"
+        tt <- term
+        let s = Add (Expr t) (Expr tt)
+        symbol "+" *> (Add s <$> expr)
+         <|> symbol "-" *> (Sub s <$> expr)
+
+         
+       
 
 term :: Parser Term
 term = do

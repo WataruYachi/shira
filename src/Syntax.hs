@@ -2,8 +2,8 @@ module Syntax where
 
 data Expr
     = Expr Term
-    | Add Term Expr
-    | Sub Term Expr
+    | Add Expr Expr
+    | Sub Expr Expr
     deriving Show
 
 data Term 
