@@ -8,8 +8,8 @@ data Expr
 
 data Term 
     = Term Factor
-    | Mul Factor Term
-    | Div Factor Term
+    | Mul Term Term
+    | Div Term Term
     deriving Show
 
 data Factor
