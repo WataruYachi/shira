@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2871a20b143c565803e4a91934bae70fb5cd42de8a1d41d6338ac5f56b8bf8c5
+-- hash: a499960c00d8242882a3a57a8977104b412f33372b0690608cfe63bb93d5863e
 
 name:           Shira
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Expr.EParser
       Expr.Expr
+      Expr.IL
       Expr.SVM
       Expr.Syntax
       Generater
