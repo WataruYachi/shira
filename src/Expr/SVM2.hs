@@ -18,17 +18,23 @@ data VM
     }
 
 vm :: VM -> VM
-vm v =
-    case code v of
-        (PUSH o :cs) ->
+vm v = let c:cs = code v in
+    case c of
+        (PUSH o) ->
             case o of
-                Im i -> VM {stack = i:os, code = cs, reg = or}
+                Im i -> newVM (i:os) cs or
                 R R1 -> VM { stack = r1 or:os, code = cs, reg = or}
                 R R2 -> VM { stack = r2 or:os, code = cs, reg = or}
+        (POP r) ->
+            let (s:ss) = os in
+                case r of
+                    R R1 -> VM {stack = ss, code = cs, reg = movReg or IL.R1 s}
     where
         os = stack v
         or = reg v
 
+
+newVM s c r = VM {stack = s, code = c, reg = r} 
 
 movReg :: AReg -> Reg -> Int -> AReg
 movReg reg IL.R1 x = AReg { r1 = x, r2 = r2 reg }
