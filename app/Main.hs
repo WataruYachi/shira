@@ -2,6 +2,7 @@ module Main where
 
 import System.Environment (getArgs)
 import System.IO
+import Expr.Generater
 
 path :: [Char]
 path = "./tmp.asm"
@@ -20,5 +21,5 @@ main :: IO ()
 main = do
     args <- getArgs
     fp <- openFile path WriteMode
-    mapM_ (hPutStrLn fp) (genAsm (args !! 0))
+    mapM_ (hPutStrLn fp) (genASM (args !! 0))
     hClose fp

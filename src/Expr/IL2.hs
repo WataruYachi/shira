@@ -30,35 +30,35 @@ encExp :: Expr -> Code
 encExp (Expr t) = encTrm t
 encExp (Add e1 e2) =
     encExp e1 ++ encExp e2 ++
-        [ POP (R R1)
-        , POP (R R2)
-        , ADD (R R2) (R R1)
-        , PUSH (R R2)
+        [ POP (R R2)
+        , POP (R R1)
+        , ADD (R R1) (R R2)
+        , PUSH (R R1)
         ]
 encExp (Sub e1 e2) =
     encExp e1 ++ encExp e2 ++
-    [ POP (R R1)
-    , POP (R R2)
-    , SUB (R R2) (R R1)
-    , PUSH (R R2)
+    [ POP (R R2)
+    , POP (R R1)
+    , SUB (R R1) (R R2)
+    , PUSH (R R1)
     ]
 
 encTrm :: Term -> Code
 encTrm (Term f) = encFac f
 encTrm (Mul t1 t2) =
     encTrm t1 ++ encTrm t2 ++
-    [ POP (R R1)
-    , POP (R R2)
-    , MUL (R R2) (R R1)
-    , PUSH (R R2)
+    [ POP (R R2)
+    , POP (R R1)
+    , MUL (R R1) (R R2)
+    , PUSH (R R1)
     ]
 
 encTrm (Div t1 t2) =
     encTrm t1 ++ encTrm t2 ++
-    [ POP (R R1)
-    , POP (R R2)
-    , DIV (R R2) (R R1)
-    , PUSH (R R2)
+    [ POP (R R2)
+    , POP (R R1)
+    , DIV (R R1) (R R2)
+    , PUSH (R R1)
     ]
 
 encFac :: Factor -> Code

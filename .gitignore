@@ -2,3 +2,6 @@
 *~
 *.asm
 *.o
+tmp.o
+tmp.asm
+tmp
