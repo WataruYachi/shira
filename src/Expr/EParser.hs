@@ -1,7 +1,7 @@
 module Expr.EParser (makeExprAST) where
 
 import Control.Applicative
-import Parser
+import PrimParser
 import Expr.Syntax
 
 makeExprAST :: String -> Maybe Expr

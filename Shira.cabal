@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 771f3c35ce8de6d51213920a08e03b744dc4419bf04b713fe9df9cd3fe593289
+-- hash: 8f63d38eb67e30be1b6db6bac6e2f0dab43a4f015564316c2f4f9bdfec0cd65b
 
 name:           Shira
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
       Expr.Syntax
       Generater
       Parser
+      PrimParser
       Syntax
   other-modules:
       Paths_Shira

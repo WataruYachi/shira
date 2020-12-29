@@ -1,121 +1,78 @@
-{-# LANGUAGE LambdaCase #-}
-module Parser  where
+module Parser where
 
-import           Control.Applicative
-import           Control.Monad
-import           Data.Char
+import Control.Applicative
+import PrimParser
+import Syntax
 
-newtype Parser a = P {runParser :: String -> Maybe (a, String)}
+infix2 :: Expr0 -> Parser Infix2
+infix2 l = do
+    symbol "+" *> (Add l <$> expr)
+        <|> symbol "-" *> (Sub l <$> expr)
 
-instance Functor Parser where
-    fmap f p =
-        P
-            ( \input ->
-                case runParser p input of
-                    Just (a, s) -> Just (f a, s)
-                    Nothing     -> Nothing
-            )
+expr :: Parser Expr
+expr = do
+    l <- expr0
+    OpE <$> infix2 l <|> return (Expr l)
 
-instance Applicative Parser where
-    pure a = P (\input -> Just (a, input))
-    fp <*> gp =
-        P
-            ( \input ->
-                case runParser fp input of
-                    Just (a, s) -> runParser (fmap a gp) s
-                    Nothing     -> Nothing
-            )
+expr'' :: Parser (Expr -> Expr)
+expr'' = do
+    symbol "+"
+    l <- expr0
+    return $ OpE . Add l
+  <|> do symbol "-"
+         l <- expr0 
+         return $ OpE . Sub l
 
-instance Alternative Parser where
-    empty = P $ const Nothing
-    p <|> q = P (\input -> case runParser p input of
-                                Nothing -> runParser q input
-                                Just x  -> Just x)
+expr' :: Parser Expr
+expr' = do
+    l <- expr0'
+    rs <- many expr''
+    let a = foldl (\l r -> r l) (Expr l) rs
+    return a
 
-instance Monad Parser where
-    p >>= f =
-        P
-            ( \input ->
-                case runParser p input of
-                    Just (a, s) -> runParser (f a) s
-                    Nothing     -> Nothing
-            )
+expr0'' :: Parser (Expr0 -> Expr0)
+expr0'' = do
+    symbol "*"
+    l <- expr1
+    return $ OpE0 . Mul l
+  <|> do symbol "/"
+         l <- expr1 
+         return $ OpE0 . Div l
 
-item :: Parser Char
-item = P (\case
-            (x:xs) -> Just (x,xs)
-            []     -> Nothing
+expr0' :: Parser Expr0
+expr0' = do
+    l <- expr1
+    rs <- many expr0''
+    let a = foldl (\l r -> r l) (Expr0 l) rs
+    return a
 
-        )
+infix3 :: Expr1 -> Parser Infix3
+infix3 l = do
+    symbol "*" *> (Mul l <$> expr0)
+      <|> symbol "/" *> (Div l <$> expr0)
 
-sat :: (Char -> Bool) -> Parser Char
-sat p = do
-    x <- item
-    if p x then return x else empty
+expr0 :: Parser Expr0
+expr0 = do
+    l <- expr1
+    OpE0  <$> infix3 l <|> return (Expr0 l)
 
-digit :: Parser Char
-digit = sat isDigit
+expr1 :: Parser Expr1
+expr1 = do
+    symbol "(" *> (Expr1 <$> expr <* symbol ")")
+    <|> (Int <$> integer)
+    <|> (Var <$> identifier)
 
-lower :: Parser Char
-lower = sat isLower
+parseLet :: Parser Assignment
+parseLet = do
+    symbol "let" 
+    i <- identifier
+    symbol "="
+    Let i <$> expr'
 
-upper :: Parser Char
-upper = sat isUpper
+parseStatement :: Parser Statement
+parseStatement = do
+    AS <$> parseLet
+    <|> E <$> expr'
 
-letter :: Parser Char
-letter = sat isLetter
-
-alphanum :: Parser Char
-alphanum = sat isAlphaNum
-
-char :: Char -> Parser Char
-char p = sat (== p)
-
-string :: String -> Parser String
-string [] = return []
-string (x:xs) = do
-    char x
-    string xs
-    return (x:xs)
-
-ident :: Parser String
-ident = do
-    x <- lower
-    xs <- many alphanum
-    return (x:xs)
-
-nat :: Parser Int
-nat = do
-    xs <- some digit
-    return (read xs)
-
-int :: Parser Int
-int = do
-    char '-'
-    n <- nat
-    return (-n)
-  <|> nat
-
-space :: Parser ()
-space = do
-    many (sat isSpace)
-    return ()
-
-token :: Parser a -> Parser a
-token p = do
-    space
-    v <- p
-    space
-    return v
-
-identifier :: Parser String
-identifier = token ident
-
-natural :: Parser Int
-natural = token nat
-
-integer :: Parser Int
-integer = token int
-
-symbol :: String -> Parser String
-symbol xs = token (string xs)
+parseProgram :: Parser [Statement]
+parseProgram = many (parseStatement <* symbol ";")
