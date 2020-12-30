@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8f63d38eb67e30be1b6db6bac6e2f0dab43a4f015564316c2f4f9bdfec0cd65b
+-- hash: e1b21cc31b6dbdda7d66cb4ddde6749a2cfb2236670790bcfb68d09fff3fde1c
 
 name:           Shira
 version:        0.1.0.0
@@ -45,6 +45,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , mtl
+    , text
   default-language: Haskell2010
 
 executable Shira-exe
@@ -57,6 +59,8 @@ executable Shira-exe
   build-depends:
       Shira
     , base >=4.7 && <5
+    , mtl
+    , text
   default-language: Haskell2010
 
 test-suite Shira-test
@@ -70,4 +74,6 @@ test-suite Shira-test
   build-depends:
       Shira
     , base >=4.7 && <5
+    , mtl
+    , text
   default-language: Haskell2010

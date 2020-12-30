@@ -2,9 +2,11 @@ module Syntax where
 
 type Ident = String
 
-data Program = St Statement | Sts Statement Program deriving Show
+-- data Program = St Statement | Sts Statement Program deriving Show
 
-data Statement = AS Assignment | E Expr deriving Show
+type Program = [Statement]
+
+data Statement = AS Assignment | Print Expr deriving Show
 
 data Assignment = Let Ident Expr deriving Show
 

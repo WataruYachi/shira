@@ -4,6 +4,8 @@ import System.Environment (getArgs)
 import System.IO
 import Expr.Generater
 
+import Generater
+
 path :: [Char]
 path = "./tmp.asm"
 
@@ -18,8 +20,4 @@ genAsm x =
     ]
 
 main :: IO ()
-main = do
-    args <- getArgs
-    fp <- openFile path WriteMode
-    mapM_ (hPutStrLn fp) (genASM (args !! 0))
-    hClose fp
+main = asmGen
