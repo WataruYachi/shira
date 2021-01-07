@@ -31,11 +31,15 @@ complier = do
         ged = generated cs
     case s of
         AS (Let i e) -> do
-            let offst = 
+            let offset = nov
+                newlvl = registVar lvl (i, offset)
+                
+            
             
     return cs
     where
         registVar l i = i:l
+
 
 generateAsm = undefined
 
