@@ -23,23 +23,7 @@ data Compiler
 
 -- 構文木を読み進めながら、各ステートメントに対応したアセンブラを生成する。
 complier :: State Compiler Compiler
-complier = do
-    cs <- get
-    let (s:ss) = ast cs
-        lvl = localVarsList cs
-        nov = numberOflocalVars cs
-        ged = generated cs
-    case s of
-        AS (Let i e) -> do
-            let offset = nov
-                newlvl = registVar lvl (i, offset)
-                
-            
-            
-    return cs
-    where
-        registVar l i = i:l
-
+complier = undefined 
 
 generateAsm = undefined
 

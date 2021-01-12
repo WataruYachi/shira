@@ -74,13 +74,13 @@ parseLet = do
     symbol "="
     AS . Let i <$> expr'
 
-parsePrint :: Parser Statement
-parsePrint = symbol "print" *> (Print <$> expr')
+parseReturn :: Parser Statement
+parseReturn = symbol "return" *> (Return <$> expr')
 
 parseStatement :: Parser Statement
 parseStatement =
     parseLet
-        <|> parsePrint
+        <|> parseReturn
 
 parseProgram :: Parser [Statement]
 parseProgram = many (parseStatement <* symbol ";")
