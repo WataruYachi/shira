@@ -37,7 +37,11 @@ data Env = Env {varNum :: Int, varList :: VarList, code :: Program} deriving Sho
 type Encoder = State Env IL
 
 
+encoder :: Program -> (IL, Env)
 encoder p = runState encode (newEnv 0 M.empty p)
+
+testEncoder :: Program -> IO ()
+testEncoder p = mapM_ print (evalState encode (newEnv 0 M.empty p))  
 
 newEnv :: Int -> VarList -> Program -> Env
 newEnv vn vl c = Env {varNum = vn, varList = vl, code = c} 
