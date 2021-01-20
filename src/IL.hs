@@ -1,4 +1,4 @@
-module IL where
+module IL (IL, Ident, Addr, VarList, Opc(..), Opr(..), Reg(..), encoder, testEncoder) where
 
 import Syntax
 import Control.Monad.State
@@ -37,11 +37,13 @@ data Env = Env {varNum :: Int, varList :: VarList, code :: Program} deriving Sho
 type Encoder = State Env IL
 
 
-encoder :: Program -> (IL, Env)
-encoder p = runState encode (newEnv 0 M.empty p)
+encoder' :: Program -> (IL, Env)
+encoder' p = runState encode (newEnv 0 M.empty p)
+
+encoder = fst . encoder'
 
 testEncoder :: Program -> IO ()
-testEncoder p = mapM_ print (evalState encode (newEnv 0 M.empty p))  
+testEncoder p = mapM_ print (evalState encode (newEnv 0 M.empty p))
 
 newEnv :: Int -> VarList -> Program -> Env
 newEnv vn vl c = Env {varNum = vn, varList = vl, code = c} 
