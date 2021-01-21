@@ -26,6 +26,11 @@ complier :: State Compiler Compiler
 complier = undefined 
 -}
 
+prologue =
+    [ "push rbp"
+    , "mov rbp, rsp"
+    , ""]
+
 gen :: IL -> [String]
 gen [] = []
 gen (c:cs) =
@@ -39,12 +44,12 @@ gen (c:cs) =
         POP o ->
             let opr = case o of
                         R R1 -> "rax"
-                        R R2 -> "rac"
+                        R R2 -> "rcx"
                 in ("pop " ++ opr) : gen cs
         ADD _ _ -> "add rax, rcx" : gen cs
         SUB _ _ -> "sub rax, rcx" : gen cs
         MUL _ _ -> "imul rax, rcx" : gen cs
-        DIV _ _ -> "cqo" : "idiv rcx" : gen c
+        DIV _ _ -> "cqo" : "idiv rcx" : gen cs
         LD r a -> case r of
                     R R1 -> ""
 
