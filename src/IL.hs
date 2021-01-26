@@ -6,6 +6,7 @@ module IL (
     Opc (..),
     Opr (..),
     Reg (..),
+    Env (..),
     encoder,
     testEncoder,
 ) where
@@ -46,10 +47,8 @@ data Env = Env {varNum :: Int, varList :: VarList, code :: Program} deriving (Sh
 
 type Encoder = State Env IL
 
-encoder' :: Program -> (IL, Env)
-encoder' p = runState encode (newEnv 0 M.empty p)
-
-encoder = fst . encoder'
+encoder :: Program -> (IL, Env)
+encoder p = runState encode (newEnv 1 M.empty p)
 
 testEncoder :: Program -> IO ()
 testEncoder p = mapM_ print (evalState encode (newEnv 0 M.empty p))
@@ -69,9 +68,10 @@ encode = do
                 AS (Let i e) -> do
                     let newvarl = M.insert i varn varl
                         il = encExpr newvarl e
+                        st = [POP (R R1), ST (Addr varn) (R R1)]
                     put $ newEnv (varn + 1) newvarl cs
                     next <- encode
-                    return $ il ++ next
+                    return $ il ++ st ++ next
                 Return e -> do
                     let il = encExpr varl e
                     put $ newEnv varn varl cs

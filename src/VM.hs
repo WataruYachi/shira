@@ -3,6 +3,12 @@ module VM where
 import Control.Monad.State
 import qualified Data.Map.Strict as M
 import IL
+    ( VarList,
+      IL,
+      Reg(..),
+      Opr(R, Im, Addr),
+      Opc(RT, PUSH, POP, ADD, SUB, MUL, DIV, LD, ST),
+      encoder )
 import Parser
 
 type Stack = [Int]
@@ -79,7 +85,7 @@ referVReg :: VReg -> IL.Reg -> Int
 referVReg reg IL.R1 = r1 reg
 referVReg reg IL.R2 = r2 reg
 
-runVM s = runState vm $ newVM [] (encoder p) VReg{r1 = 0, r2 = 0} M.empty
+runVM s = runState vm $ newVM [] (fst $ encoder p) VReg{r1 = 0, r2 = 0} M.empty
   where
     p = case makeAST s of
         Just (c, s) -> c

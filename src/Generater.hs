@@ -26,10 +26,11 @@ complier :: State Compiler Compiler
 complier = undefined 
 -}
 
-prologue =
+prologue :: Int -> [[Char]]
+prologue i =
     [ "push rbp"
     , "mov rbp, rsp"
-    , ""]
+    , "sub rsp, " ++ show (i*4)]
 
 gen :: IL -> [String]
 gen [] = []
@@ -50,10 +51,23 @@ gen (c:cs) =
         SUB _ _ -> "sub rax, rcx" : gen cs
         MUL _ _ -> "imul rax, rcx" : gen cs
         DIV _ _ -> "cqo" : "idiv rcx" : gen cs
-        LD r a -> case r of
-                    R R1 -> ""
+        LD (R r) (Addr a)
+            -> case r of
+                R1 -> ("mov rax, DWORD PTR [rbp - " ++ (show $ a*4) ++ "]") : gen cs
+                R2 -> ("mov rcx, DWORD PTR [rbp - " ++ (show $ a*4) ++ "]") : gen cs
+        ST (Addr a) (R r) -> ("mov DWORD PTR [rbp - " ++ (show $ a*4) ++ "], rax") : gen cs
+        RT _ -> ["mov rbp, rsp", "pop rbp, ret"] ++ gen cs
 
-generateAsm = undefined
+generateAsm s = 
+    case makeAST s of
+        Just (p,s) -> let (il, e) = encoder p
+                        in prologue (varNum e) ++ gen il
+        Nothing -> []
+
+header = ["global _start"
+    , "section .text"
+    , "_start:"
+    ]
 
 readCodeFromFile :: IO String
 readCodeFromFile = do
@@ -68,4 +82,4 @@ readCodeFromFile = do
 asmGen :: IO ()
 asmGen = do 
     code <- readCodeFromFile
-    print $ makeAST code
+    print $ generateAsm code
