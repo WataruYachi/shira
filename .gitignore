@@ -6,3 +6,4 @@ tmp.o
 tmp.asm
 tmp
 test.shi
+*.shi

@@ -30,7 +30,7 @@ prologue :: Int -> [[Char]]
 prologue i =
     [ "push rbp"
     , "mov rbp, rsp"
-    , "sub rsp, " ++ show (i*4)]
+    , "sub rsp, " ++ show (i*8)]
 
 gen :: IL -> [String]
 gen [] = []
@@ -53,33 +53,49 @@ gen (c:cs) =
         DIV _ _ -> "cqo" : "idiv rcx" : gen cs
         LD (R r) (Addr a)
             -> case r of
-                R1 -> ("mov rax, DWORD PTR [rbp - " ++ (show $ a*4) ++ "]") : gen cs
-                R2 -> ("mov rcx, DWORD PTR [rbp - " ++ (show $ a*4) ++ "]") : gen cs
-        ST (Addr a) (R r) -> ("mov DWORD PTR [rbp - " ++ (show $ a*4) ++ "], rax") : gen cs
-        RT _ -> ["mov rbp, rsp", "pop rbp, ret"] ++ gen cs
+                R1 -> ("mov rax, [rbp - " ++ (show $ a*offset) ++ "]") : gen cs
+                R2 -> ("mov rcx, [rbp - " ++ (show $ a*offset) ++ "]") : gen cs
+        ST (Addr a) (R r) -> ("mov [rbp - " ++ (show $ a*offset) ++ "], rax") : gen cs
+        RT _ -> ["mov rsp, rbp", "pop rbp", "ret"] ++ gen cs
+
+-- 2021/01/27
+-- 8にしないと動かない　どうして？
+-- WORDのサイズ？　それともWORDx8 = 64bitか
+-- メモリのアドレスについて勉強するべき
+offset = 8
 
 generateAsm s = 
     case makeAST s of
         Just (p,s) -> let (il, e) = encoder p
-                        in prologue (varNum e) ++ gen il
+                        in header ++ prologue (varNum e) ++ gen il
         Nothing -> []
 
-header = ["global _start"
+header =
+    [ "global _start"
     , "section .text"
     , "_start:"
     ]
 
-readCodeFromFile :: IO String
-readCodeFromFile = do
-    args <- getArgs
-    if null args then return ""
-    else do
-        fp <- openFile (head args) ReadMode
-        code <- TIO.hGetContents fp
-        hClose fp
-        return $ T.unpack code
+readCodeFromFile :: FilePath -> IO String
+readCodeFromFile f = do
+    fp <- openFile f ReadMode
+    code <- TIO.hGetContents fp
+    hClose fp
+    return $ T.unpack code
+
+writeAsm :: FilePath -> [String] -> IO ()
+writeAsm f a = do
+    fp <- openFile f WriteMode
+    mapM_ (TIO.hPutStrLn fp <$> T.pack) a
+    hClose fp
+    return ()
 
 asmGen :: IO ()
-asmGen = do 
-    code <- readCodeFromFile
-    print $ generateAsm code
+asmGen = do
+    args <- getArgs
+    if length args < 2 then return ()
+    else do
+        let inputFile = head args
+            outputFile = args !! 1
+        code <- readCodeFromFile inputFile
+        writeAsm outputFile $ generateAsm code
