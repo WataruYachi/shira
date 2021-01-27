@@ -6,6 +6,9 @@ type Ident = String
 
 type Program = [Statement]
 
+type Args = [Ident]
+data Function = Func Ident Args [Statement] deriving Show
+
 data Statement = AS Assignment | Return Expr deriving Show
 
 data Assignment = Let Ident Expr deriving Show

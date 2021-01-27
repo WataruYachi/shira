@@ -82,6 +82,24 @@ parseStatement =
     parseLet
         <|> parseReturn
 
+parseStatements :: Parser [Statement]
+parseStatements = many (parseStatement <* symbol ";")
+
+parseArgs :: Parser Args
+parseArgs =
+    symbol "("
+        *> many ((identifier <* symbol ",") <|> identifier)
+        <* symbol ")"
+
+parseFunction :: Parser Function
+parseFunction = do
+    i <- identifier
+    as <- parseArgs
+    symbol "{"
+    ss <- parseStatements
+    symbol "}"
+    return $ Func i as ss
+
 parseProgram :: Parser [Statement]
 parseProgram = many (parseStatement <* symbol ";")
 

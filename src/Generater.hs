@@ -23,7 +23,7 @@ data Compiler
 
 -- 構文木を読み進めながら、各ステートメントに対応したアセンブラを生成する。
 complier :: State Compiler Compiler
-complier = undefined 
+complier = undefined
 -}
 
 prologue :: Int -> [[Char]]
@@ -60,11 +60,12 @@ gen (c:cs) =
 
 -- 2021/01/27
 -- 8にしないと動かない　どうして？
--- WORDのサイズ？　それともWORDx8 = 64bitか
+-- Byteのサイズ？　それともBytex8 = 64bitか
 -- メモリのアドレスについて勉強するべき
+-- ［訂正］2021/01/27 wordは歴史的に16bit(8086が16bitだったから？)
 offset = 8
 
-generateAsm s = 
+generateAsm s =
     case makeAST s of
         Just (p,s) -> let (il, e) = encoder p
                         in header ++ prologue (varNum e) ++ gen il
